@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { buildGraph, findRoots, findDisconnectedGroups } = require("./graph");
+const { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups } = require("./graph");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -61,12 +61,18 @@ app.post("/bfhl", (req, res) => {
   const roots = findRoots(allNodes, childNodes);
   const groups = findDisconnectedGroups(validEdges);
 
+  const groupsWithRoots = groups.map((group) => ({
+    root: group.roots[0],
+    nodes: group.nodes,
+    edges: group.edges,
+  }));
+
   res.json({
     valid_edges: validEdges,
     invalid_entries: invalidEntries,
     duplicate_edges: duplicateEdges,
-    graph: { adjacency, allNodes: [...allNodes], parentNodes: [...parentNodes], childNodes: [...childNodes], roots },
-    groups,
+    roots,
+    groups: groupsWithRoots,
   });
 });
 

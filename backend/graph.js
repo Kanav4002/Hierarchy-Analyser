@@ -23,9 +23,18 @@ function findRoots(allNodes, childNodes) {
   return [...allNodes].filter((node) => !childNodes.has(node));
 }
 
+function findGroupRoots(groupNodes, childNodes) {
+  const roots = groupNodes.filter((node) => !childNodes.has(node));
+
+  if (roots.length === 0) {
+    return [groupNodes.sort()[0]];
+  }
+
+  return roots;
+}
+
 function findDisconnectedGroups(edges) {
   const { adjacency, allNodes, parentNodes, childNodes } = buildGraph(edges);
-  const roots = findRoots(allNodes, childNodes);
   const visited = new Set();
   const groups = [];
 
@@ -50,37 +59,29 @@ function findDisconnectedGroups(edges) {
     return group;
   }
 
-  for (const root of roots) {
+  // Find all roots first
+  const allRoots = findRoots(allNodes, childNodes);
+
+  // Start BFS from each root
+  for (const root of allRoots) {
     if (!visited.has(root)) {
       groups.push(bfs(root));
     }
   }
 
   // Handle cycles (nodes not visited)
-  for (const node of allNodes) {
+  for (const node of [...allNodes].sort()) {
     if (!visited.has(node)) {
-      const group = { nodes: [], edges: [] };
-      const queue = [node];
-      visited.add(node);
-
-      while (queue.length > 0) {
-        const current = queue.shift();
-        group.nodes.push(current);
-
-        for (const child of adjacency[current] || []) {
-          group.edges.push({ parent: current, child });
-          if (!visited.has(child)) {
-            visited.add(child);
-            queue.push(child);
-          }
-        }
-      }
-
-      groups.push(group);
+      groups.push(bfs(node));
     }
+  }
+
+  // Add root to each group
+  for (const group of groups) {
+    group.roots = findGroupRoots(group.nodes, childNodes);
   }
 
   return groups;
 }
 
-module.exports = { buildGraph, findRoots, findDisconnectedGroups };
+module.exports = { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups };
