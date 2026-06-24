@@ -49,6 +49,31 @@ function parseEntries(data) {
   return { validEdges, invalidEntries, duplicateEdges };
 }
 
+function generateSummary(hierarchies) {
+  let totalTrees = 0;
+  let totalCycles = 0;
+  let largestTreeRoot = null;
+  let maxDepth = 0;
+
+  for (const h of hierarchies) {
+    if (h.has_cycle) {
+      totalCycles++;
+    } else {
+      totalTrees++;
+      if (h.depth > maxDepth || (h.depth === maxDepth && h.root < largestTreeRoot)) {
+        maxDepth = h.depth;
+        largestTreeRoot = h.root;
+      }
+    }
+  }
+
+  return {
+    total_trees: totalTrees,
+    total_cycles: totalCycles,
+    largest_tree_root: largestTreeRoot,
+  };
+}
+
 app.post("/bfhl", (req, res) => {
   const { data } = req.body;
 
@@ -72,11 +97,14 @@ app.post("/bfhl", (req, res) => {
     return { root, tree, depth };
   });
 
+  const summary = generateSummary(hierarchies);
+
   res.json({
     valid_edges: validEdges,
     invalid_entries: invalidEntries,
     duplicate_edges: duplicateEdges,
     hierarchies,
+    summary,
   });
 });
 
