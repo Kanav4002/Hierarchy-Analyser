@@ -110,6 +110,21 @@ function findDisconnectedGroups(edges) {
   return groups;
 }
 
+function calculateDepth(edges, root) {
+  function getMaxDepth(node) {
+    const children = edges
+      .filter((e) => e.parent === node)
+      .map((e) => e.child);
+
+    if (children.length === 0) return 1;
+
+    const childDepths = children.map((child) => getMaxDepth(child));
+    return 1 + Math.max(...childDepths);
+  }
+
+  return getMaxDepth(root);
+}
+
 function buildTree(edges, root) {
   function addNode(node) {
     const children = edges
@@ -128,4 +143,4 @@ function buildTree(edges, root) {
   return { [root]: addNode(root) };
 }
 
-module.exports = { buildGraph, findRoots, findGroupRoots, detectCycle, findDisconnectedGroups, buildTree };
+module.exports = { buildGraph, findRoots, findGroupRoots, detectCycle, findDisconnectedGroups, buildTree, calculateDepth };

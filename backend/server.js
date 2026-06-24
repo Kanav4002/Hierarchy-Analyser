@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups, buildTree } = require("./graph");
+const { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups, buildTree, calculateDepth } = require("./graph");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -66,7 +66,10 @@ app.post("/bfhl", (req, res) => {
       return { root, tree: {}, has_cycle: true };
     }
 
-    return { root, tree: buildTree(group.edges, root) };
+    const tree = buildTree(group.edges, root);
+    const depth = calculateDepth(group.edges, root);
+
+    return { root, tree, depth };
   });
 
   res.json({
