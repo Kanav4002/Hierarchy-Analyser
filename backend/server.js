@@ -100,10 +100,12 @@ app.post("/bfhl", (req, res) => {
   const summary = generateSummary(hierarchies);
 
   res.json({
-    valid_edges: validEdges,
+    user_id: "kanavkumar_08092004",
+    email_id: "kanav2111.be23@chitkara.edu.in",
+    college_roll_number: "2310992111",
+    hierarchies,
     invalid_entries: invalidEntries,
     duplicate_edges: duplicateEdges,
-    hierarchies,
     summary,
   });
 });
