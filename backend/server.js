@@ -8,15 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/bfhl", (req, res) => {
-  // TODO: Implement business logic
-  const { data } = req.body;
-
-  // Placeholder response
-  res.json({
-    status: "success",
-    message: "Endpoint is working. Business logic not yet implemented.",
-    received: data,
-  });
+  res.json({ message: "API working" });
 });
 
 app.get("/", (req, res) => {
