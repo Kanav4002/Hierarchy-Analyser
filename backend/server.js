@@ -18,6 +18,7 @@ function parseEntries(data) {
   const invalidEntries = [];
   const duplicateEdges = [];
   const seen = new Set();
+  const childToParent = {};
 
   for (const raw of data) {
     const trimmed = raw.trim();
@@ -33,8 +34,11 @@ function parseEntries(data) {
           if (!duplicateEdges.includes(key)) {
             duplicateEdges.push(key);
           }
+        } else if (childToParent[child]) {
+          // Child already has a parent, discard this edge
         } else {
           seen.add(key);
+          childToParent[child] = parent;
           validEdges.push({ parent, child });
         }
       }
