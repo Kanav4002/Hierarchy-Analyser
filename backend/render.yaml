@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: hierarchy-analyzer-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
