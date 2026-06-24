@@ -16,6 +16,8 @@ function isValidEdge(entry) {
 function parseEntries(data) {
   const validEdges = [];
   const invalidEntries = [];
+  const duplicateEdges = [];
+  const seen = new Set();
 
   for (const raw of data) {
     const trimmed = raw.trim();
@@ -26,12 +28,20 @@ function parseEntries(data) {
       if (parent === child) {
         invalidEntries.push(raw);
       } else {
-        validEdges.push({ parent, child });
+        const key = `${parent}->${child}`;
+        if (seen.has(key)) {
+          if (!duplicateEdges.includes(key)) {
+            duplicateEdges.push(key);
+          }
+        } else {
+          seen.add(key);
+          validEdges.push({ parent, child });
+        }
       }
     }
   }
 
-  return { validEdges, invalidEntries };
+  return { validEdges, invalidEntries, duplicateEdges };
 }
 
 app.post("/bfhl", (req, res) => {
@@ -41,11 +51,12 @@ app.post("/bfhl", (req, res) => {
     return res.status(400).json({ error: "data must be an array" });
   }
 
-  const { validEdges, invalidEntries } = parseEntries(data);
+  const { validEdges, invalidEntries, duplicateEdges } = parseEntries(data);
 
   res.json({
     valid_edges: validEdges,
     invalid_entries: invalidEntries,
+    duplicate_edges: duplicateEdges,
   });
 });
 
