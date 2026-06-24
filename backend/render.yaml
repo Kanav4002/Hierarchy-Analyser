@@ -10,3 +10,5 @@ services:
         value: production
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: KEEP_ALIVE_URL
+        sync: false

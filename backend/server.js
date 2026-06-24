@@ -130,6 +130,25 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Hierarchy Analyzer API" });
 });
 
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
+const KEEP_ALIVE_URL = process.env.KEEP_ALIVE_URL;
+const KEEP_ALIVE_INTERVAL = 10 * 60 * 1000;
+
+if (KEEP_ALIVE_URL) {
+  setInterval(async () => {
+    try {
+      const res = await fetch(KEEP_ALIVE_URL);
+      console.log(`[Keep-Alive] Pinged at ${new Date().toISOString()} - Status: ${res.status}`);
+    } catch (err) {
+      console.error(`[Keep-Alive] Error: ${err.message}`);
+    }
+  }, KEEP_ALIVE_INTERVAL);
+  console.log(`[Keep-Alive] Monitoring started for ${KEEP_ALIVE_URL}`);
+}
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
