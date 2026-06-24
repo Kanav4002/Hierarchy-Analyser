@@ -110,4 +110,22 @@ function findDisconnectedGroups(edges) {
   return groups;
 }
 
-module.exports = { buildGraph, findRoots, findGroupRoots, detectCycle, findDisconnectedGroups };
+function buildTree(edges, root) {
+  function addNode(node) {
+    const children = edges
+      .filter((e) => e.parent === node)
+      .map((e) => e.child);
+
+    if (children.length === 0) return {};
+
+    const result = {};
+    for (const child of children) {
+      result[child] = addNode(child);
+    }
+    return result;
+  }
+
+  return { [root]: addNode(root) };
+}
+
+module.exports = { buildGraph, findRoots, findGroupRoots, detectCycle, findDisconnectedGroups, buildTree };

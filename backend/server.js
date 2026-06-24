@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups } = require("./graph");
+const { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups, buildTree } = require("./graph");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -47,29 +47,6 @@ function parseEntries(data) {
   }
 
   return { validEdges, invalidEntries, duplicateEdges };
-}
-
-function buildTree(edges, root) {
-  const tree = {};
-
-  function addNode(node, subtree) {
-    const children = edges
-      .filter((e) => e.parent === node)
-      .map((e) => e.child);
-
-    if (children.length === 0) {
-      return {};
-    }
-
-    const result = {};
-    for (const child of children) {
-      result[child] = addNode(child, edges);
-    }
-    return result;
-  }
-
-  tree[root] = addNode(root, edges);
-  return tree;
 }
 
 app.post("/bfhl", (req, res) => {
