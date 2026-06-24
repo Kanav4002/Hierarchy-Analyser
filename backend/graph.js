@@ -33,6 +33,35 @@ function findGroupRoots(groupNodes, childNodes) {
   return roots;
 }
 
+function detectCycle(adjacency, nodes) {
+  const visited = new Set();
+  const recStack = new Set();
+
+  function dfs(node) {
+    visited.add(node);
+    recStack.add(node);
+
+    for (const child of adjacency[node] || []) {
+      if (!visited.has(child)) {
+        if (dfs(child)) return true;
+      } else if (recStack.has(child)) {
+        return true;
+      }
+    }
+
+    recStack.delete(node);
+    return false;
+  }
+
+  for (const node of nodes) {
+    if (!visited.has(node)) {
+      if (dfs(node)) return true;
+    }
+  }
+
+  return false;
+}
+
 function findDisconnectedGroups(edges) {
   const { adjacency, allNodes, parentNodes, childNodes } = buildGraph(edges);
   const visited = new Set();
@@ -59,29 +88,26 @@ function findDisconnectedGroups(edges) {
     return group;
   }
 
-  // Find all roots first
   const allRoots = findRoots(allNodes, childNodes);
 
-  // Start BFS from each root
   for (const root of allRoots) {
     if (!visited.has(root)) {
       groups.push(bfs(root));
     }
   }
 
-  // Handle cycles (nodes not visited)
   for (const node of [...allNodes].sort()) {
     if (!visited.has(node)) {
       groups.push(bfs(node));
     }
   }
 
-  // Add root to each group
   for (const group of groups) {
     group.roots = findGroupRoots(group.nodes, childNodes);
+    group.has_cycle = detectCycle(adjacency, group.nodes);
   }
 
   return groups;
 }
 
-module.exports = { buildGraph, findRoots, findGroupRoots, findDisconnectedGroups };
+module.exports = { buildGraph, findRoots, findGroupRoots, detectCycle, findDisconnectedGroups };
